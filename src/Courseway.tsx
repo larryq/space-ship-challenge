@@ -55,6 +55,7 @@ export const Courseway = ({
   shipRef,
   position = [0, 0, 0] as [number, number, number],
   scale = 1,
+  rotation = [0, 0, 0] as [number, number, number],
 }) => {
   const incrementCounter = useGame((state) => state.collectWaypoint);
   const { scene } = useGLTF(courseModel);
@@ -147,7 +148,7 @@ export const Courseway = ({
   });
 
   return (
-    <group ref={groupRef} position={position} scale={scale}>
+    <group ref={groupRef} position={position} scale={scale} rotation={rotation}>
       {/* PHYSICS ONLY: Hidden low-poly meshes */}
       {physicsMeshes.map((mesh, i) => (
         <RigidBody

@@ -163,7 +163,7 @@ export const SpaceShip = forwardRef((props, ref) => {
     ////////////////////////
 
     const impulse = new Vector3(0, 0, 0);
-    const moveSpeed = 415 * delta;
+    const moveSpeed = 315 * delta;
 
     // Rotation (Banking)
     // We tilt the ship visually, but apply torque to the physics body
@@ -192,7 +192,7 @@ export const SpaceShip = forwardRef((props, ref) => {
 
     //handle pitch (tilting up/down)
     let targetPitch = currentEuler.x;
-    const pitchSpeed = 1.8 * delta;
+    const pitchSpeed = 0.8 * delta;
     const maxPitch = Math.PI / 2 - 0.4; // 90 degrees minus a little buffer to prevent gimbal lock
 
     if (forward) targetPitch -= pitchSpeed;

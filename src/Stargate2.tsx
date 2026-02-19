@@ -48,10 +48,12 @@ export function Stargate({
   position,
   scale,
   rotation,
+  color = "#8800ff",
 }: {
   position: [number, number, number];
   scale: [number, number, number];
   rotation: [number, number, number];
+  color: string;
 }) {
   const { scene } = useGLTF(stargate); // Swap with your path
   const enterGate = useGame((state) => state.enterGate);
@@ -89,7 +91,7 @@ export function Stargate({
       position: [offset.x, offset.y, offset.z] as [number, number, number],
       rotation: new THREE.Euler().setFromQuaternion(quaternion),
     };
-  }, [scene]);
+  }, [scene, color]);
 
   // Create 100 random particle positions
   const particles = useMemo(() => {
@@ -102,11 +104,12 @@ export function Stargate({
       speed: 0.1 + Math.random() * 0.2,
     }));
   }, []);
-
+  const gateColor = useMemo(() => new THREE.Color(color), [color]);
   useFrame((state, delta) => {
     // 1. Animate the gate shimmer
     if (shimmerRef.current) {
       shimmerRef.current.uTime = state.clock.getElapsedTime();
+      shimmerRef.current.uColor = gateColor;
     }
     //gateRef.current.rotation.y += delta * 1.1; // Slow rotation for effect
 

@@ -18,12 +18,18 @@ export default function SectorAlpha({ shipRef }) {
       <Asteroid key="asteroid2" position={[-12, -2, -50]} scale={3} />
       <Asteroid key="asteroid3" position={[5, -8, -80]} scale={1.5} />
       <Asteroid key="asteroid4" position={[-5, 10, -120]} scale={4} />
-      <Courseway shipRef={shipRef} scale={13} position={[0, 0, -10.0]} />
+      <Courseway
+        shipRef={shipRef}
+        scale={13}
+        position={[-125, 0, -150.0]}
+        rotation={[0, -Math.PI / 2, 0]}
+      />
 
       <Stargate
         position={[0, 0, -100]}
-        scale={[4, 4, 4]}
+        scale={[5, 5, 5]}
         rotation={[0, -Math.PI / 2, 0]}
+        color="#00ff62"
       />
 
       {/* Optional: Add a subtle fog to make the distance feel vast */}

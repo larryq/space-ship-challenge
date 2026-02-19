@@ -1,7 +1,7 @@
 import { Float } from "@react-three/drei";
 import { RigidBody } from "@react-three/rapier";
 import Asteroid from "./Asteroid";
-import { Stargate } from "./Stargate";
+import { Stargate } from "./Stargate2";
 
 export default function SectorBeta() {
   console.log("Rendering Sector Gamma");
@@ -19,9 +19,13 @@ export default function SectorBeta() {
       <Asteroid position={[-5, 10, -120]} scale={1} />
       <Asteroid position={[-7, 10, -110]} scale={1} />
       {/* 3. The Goal: Stargate at the end of the run */}
-      <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
-        <Stargate position={[0, 0, -180]} />
-      </Float>
+
+      <Stargate
+        position={[0, 0, -180]}
+        scale={[5, 5, 5]}
+        rotation={[0, -Math.PI / 2, 0]}
+        color="#ff00f7"
+      />
 
       {/* Optional: Add a subtle fog to make the distance feel vast */}
       <color attach="background" args={["#020205"]} />

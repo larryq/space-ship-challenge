@@ -28,7 +28,7 @@ export default function Experience() {
 
   return (
     <>
-      <Physics debug={true}>
+      <Physics debug={false}>
         {/* <WorldBoundary /> */}
         <SpaceShell />
         <SpaceShip ref={shipRef} />
@@ -51,13 +51,13 @@ export default function Experience() {
         /> */}
         <SpaceDust count={60000} />
         <LevelIndicator />
-        <ambientLight intensity={0.5} />
+        <ambientLight intensity={0.6} />
         <Environment
           preset="city" // 'city', 'night', 'warehouse', or 'sunset'
           blur={0.5}
         />
       </Physics>
-      {/* <CameraRig shipBodyRef={shipBodyRef} /> */}
+
       {/* Warp Overlay: CSS effect that shows up when warping */}
       {phase === "warping" && <WarpTunnel shipBodyRef={shipRef} />}
     </>

@@ -144,14 +144,14 @@ export const SpaceShell = () => {
             float starAlpha = smoothstep(0.0, 1.0, (starSeed - 0.9992) / (1.0 - 0.9992)); 
             color += starColor * starAlpha;
         }
-
+        
         gl_FragColor = vec4(color, 1.0);
         }
   
   `;
 
   return (
-    <mesh ref={meshRef} frustumCulled={true}>
+    <mesh ref={meshRef} frustumCulled={false}>
       {/* Make the sphere huge so it's behind everything else */}
       {/* <sphereGeometry args={[5000, 32, 32]} /> */}
       <sphereGeometry args={[5000, 128, 128]} />

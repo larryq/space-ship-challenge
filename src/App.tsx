@@ -21,16 +21,16 @@ export default function App() {
         {/* THE 3D WORLD */}
         <Canvas
           shadows
-          camera={{ fov: 45, near: 0.1, far: 1200, position: [0, 5, 12] }}
+          camera={{ fov: 45, near: 0.1, far: 12000, position: [0, 5, 12] }}
         >
-          <Stats />
+          {/* <Stats /> */}
           <Suspense fallback={null}>
             <Experience />
           </Suspense>
         </Canvas>
 
-        {/* THE 2D UI (Overlayed on top) */}
-        <Interface />
+        {/* //THE 2D UI (Overlayed on top)
+        <Interface /> */}
       </div>
     </KeyboardControls>
   );

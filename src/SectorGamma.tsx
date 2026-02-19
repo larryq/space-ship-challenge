@@ -13,14 +13,14 @@ export default function SectorBeta() {
 
       {/* 2. Obstacle Course: Scattered Asteroids */}
       {/* Positioned along the Z-axis (the flight path) */}
-      <Asteroid position={[10, 5, -30]} scale={1} color="purple" />
-      <Asteroid position={[-12, -2, -50]} scale={1} color="purple" />
-      <Asteroid position={[5, -8, -80]} scale={1} color="purple" />
-      <Asteroid position={[-5, 10, -120]} scale={1} color="purple" />
-      <Asteroid position={[-7, 10, -110]} scale={1} color="purple" />
+      <Asteroid position={[10, 5, -30]} scale={1} />
+      <Asteroid position={[-12, -2, -50]} scale={1} />
+      <Asteroid position={[5, -8, -80]} scale={1} />
+      <Asteroid position={[-5, 10, -120]} scale={1} />
+      <Asteroid position={[-7, 10, -110]} scale={1} />
       {/* 3. The Goal: Stargate at the end of the run */}
       <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
-        <Stargate position={[0, 0, -100]} />
+        <Stargate position={[0, 0, -180]} />
       </Float>
 
       {/* Optional: Add a subtle fog to make the distance feel vast */}

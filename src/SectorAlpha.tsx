@@ -14,25 +14,10 @@ export default function SectorAlpha({ shipRef }) {
 
       {/* 2. Obstacle Course: Scattered Asteroids */}
       {/* Positioned along the Z-axis (the flight path) */}
-      <Asteroid key="asteroid1" position={[10, 5, -30]} scale={2} color="red" />
-      <Asteroid
-        key="asteroid2"
-        position={[-12, -2, -50]}
-        scale={3}
-        color="red"
-      />
-      <Asteroid
-        key="asteroid3"
-        position={[5, -8, -80]}
-        scale={1.5}
-        color="red"
-      />
-      <Asteroid
-        key="asteroid4"
-        position={[-5, 10, -120]}
-        scale={4}
-        color="red"
-      />
+      <Asteroid key="asteroid1" position={[10, 5, -30]} scale={2} />
+      <Asteroid key="asteroid2" position={[-12, -2, -50]} scale={3} />
+      <Asteroid key="asteroid3" position={[5, -8, -80]} scale={1.5} />
+      <Asteroid key="asteroid4" position={[-5, 10, -120]} scale={4} />
       <Courseway shipRef={shipRef} scale={13} position={[0, 0, -10.0]} />
 
       <Stargate

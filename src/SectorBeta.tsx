@@ -13,30 +13,10 @@ export default function SectorBeta() {
 
       {/* 2. Obstacle Course: Scattered Asteroids */}
       {/* Positioned along the Z-axis (the flight path) */}
-      <Asteroid
-        key="asteroid1"
-        position={[10, 5, -30]}
-        scale={1}
-        color="yellow"
-      />
-      <Asteroid
-        key="asteroid2"
-        position={[-12, -2, -50]}
-        scale={1}
-        color="yellow"
-      />
-      <Asteroid
-        key="asteroid3"
-        position={[5, -8, -80]}
-        scale={0.5}
-        color="yellow"
-      />
-      <Asteroid
-        key="asteroid4"
-        position={[-5, 10, -120]}
-        scale={2}
-        color="yellow"
-      />
+      <Asteroid key="asteroid1" position={[10, 5, -30]} scale={1} />
+      <Asteroid key="asteroid2" position={[-12, -2, -50]} scale={1} />
+      <Asteroid key="asteroid3" position={[5, -8, -80]} scale={0.5} />
+      <Asteroid key="asteroid4" position={[-5, 10, -120]} scale={2} />
 
       {/* 3. The Goal: Stargate at the end of the run */}
       <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>

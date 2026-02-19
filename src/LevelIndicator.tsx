@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/static-components */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
@@ -21,6 +22,7 @@ export const LevelIndicator = () => {
         position={[0, 0.55, 0]} // Placed just outside the ring
         fontSize={0.1}
         color="#00ff00"
+        // @ts-expect-error use instead of ignore so it doesn't hide other potential issues
         depthTest={false}
         rotation={[0, 0, angle]} // "Un-rotate" the text so letters stay upright
       >
@@ -115,6 +117,7 @@ export const LevelIndicator = () => {
           fontSize={0.12}
           color="#00ff00"
           anchorX="left"
+          // @ts-expect-error use instead of ignore so it doesn't hide other potential issues
           depthTest={false}
         >
           0.0°

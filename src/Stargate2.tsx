@@ -6,6 +6,7 @@ import { useGLTF, shaderMaterial, Points, Point } from "@react-three/drei";
 import { extend, useFrame } from "@react-three/fiber";
 import { RigidBody, CuboidCollider } from "@react-three/rapier";
 import { useGame } from "./store/GameStore";
+// @ts-expect-error use instead of ignore so it doesn't hide other potential issues
 import stargate from "./assets/stargate1.glb";
 
 // 1. Enhanced Shader with a "Radial Pulse"

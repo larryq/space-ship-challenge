@@ -6,7 +6,6 @@ export function Stargate({ position }: { position: [number, number, number] }) {
 
   return (
     <group position={position}>
-      {/* REMINDER: Put Blender model here */}
       <mesh>
         <torusGeometry args={[5, 0.4, 16, 100]} />
         <meshStandardMaterial

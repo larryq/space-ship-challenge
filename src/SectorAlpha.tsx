@@ -17,7 +17,18 @@ export default function SectorAlpha({ shipRef }) {
       <Asteroid key="asteroid1" position={[10, 5, -30]} scale={2} />
       <Asteroid key="asteroid2" position={[-12, -2, -50]} scale={3} />
       <Asteroid key="asteroid3" position={[5, -8, -80]} scale={1.5} />
-      <Asteroid key="asteroid4" position={[-5, 10, -120]} scale={4} />
+      <Asteroid
+        key="asteroid4"
+        position={[-5, 10, -120]}
+        scale={4}
+        hasRings={true}
+      />
+      <Asteroid
+        key="asteroid5"
+        position={[-2588, -1100, -4120]}
+        scale={624}
+        hasRings={false}
+      />
       <Courseway
         shipRef={shipRef}
         scale={13}

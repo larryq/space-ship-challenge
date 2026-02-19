@@ -1,35 +1,37 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-
-function App() {
-  const [count, setCount] = useState(0)
-
+import { Canvas } from "@react-three/fiber";
+import { KeyboardControls } from "@react-three/drei";
+import { Suspense } from "react";
+import Experience from "./Experience";
+import Interface from "./Interface"; // Your 2D HUD
+import { Stats } from "@react-three/drei";
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    // Define your key map once at the top level
+    <KeyboardControls
+      map={[
+        { name: "forward", keys: ["ArrowUp", "KeyW"] },
+        { name: "backward", keys: ["ArrowDown", "KeyS"] },
+        { name: "left", keys: ["ArrowLeft", "KeyA"] },
+        { name: "right", keys: ["ArrowRight", "KeyD"] },
+        { name: "boost", keys: ["Space"] },
+        { name: "shift", keys: ["ShiftLeft", "ShiftRight"] },
+      ]}
+    >
+      <div style={{ width: "100vw", height: "100vh", background: "#000" }}>
+        {/* THE 3D WORLD */}
+        <Canvas
+          shadows
+          camera={{ fov: 45, near: 0.1, far: 1200, position: [0, 5, 12] }}
+        >
+          <Stats />
+          <Suspense fallback={null}>
+            <Experience />
+          </Suspense>
+        </Canvas>
 
-export default App
+        {/* THE 2D UI (Overlayed on top) */}
+        <Interface />
+      </div>
+    </KeyboardControls>
+  );
+}

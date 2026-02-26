@@ -6,6 +6,11 @@ interface GameState {
   health: number;
   currentSector: number;
   waypointsCollected: number;
+  cameraMode: "thirdPerson" | "firstPerson";
+  isRacing: boolean;
+  toggleTrackMode: () => void;
+  // Separate setter if you need to force a specific mode
+  setCameraMode: (mode: "thirdPerson" | "firstPerson") => void;
 
   // Actions
   start: () => void;
@@ -21,6 +26,19 @@ export const useGame = create<GameState>((set, get) => ({
   health: 100,
   currentSector: 1,
   waypointsCollected: 0,
+  cameraMode: "thirdPerson",
+  isRacing: false,
+  toggleTrackMode: () =>
+    set((state) => {
+      const newRacingState = !state.isRacing;
+      return {
+        isRacing: newRacingState,
+        // If we start racing, go First Person. If we stop, go Third Person.
+        cameraMode: newRacingState ? "firstPerson" : "thirdPerson",
+      };
+    }),
+
+  setCameraMode: (mode) => set({ cameraMode: mode }),
 
   start: () => set({ phase: "playing", score: 0, health: 100 }),
 
@@ -31,6 +49,7 @@ export const useGame = create<GameState>((set, get) => ({
     })),
 
   enterGate: () => {
+    const warpPeriod = 6000; // Total warp time in ms
     const nextSector = get().currentSector + 1;
 
     // 1. Immediately start warping and switch to an EMPTY sector (0)
@@ -46,7 +65,7 @@ export const useGame = create<GameState>((set, get) => ({
       setTimeout(() => {
         set({ phase: "playing" });
       }, 500);
-    }, 3000);
+    }, warpPeriod);
   },
 
   warpComplete: () => set({ phase: "playing" }),

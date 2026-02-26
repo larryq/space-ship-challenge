@@ -13,8 +13,8 @@ export default function App() {
         { name: "backward", keys: ["ArrowDown", "KeyS"] },
         { name: "left", keys: ["ArrowLeft", "KeyA"] },
         { name: "right", keys: ["ArrowRight", "KeyD"] },
-        { name: "boost", keys: ["Space"] },
         { name: "shift", keys: ["ShiftLeft", "ShiftRight"] },
+        { name: "level", keys: ["Space"] },
       ]}
     >
       <div style={{ width: "100vw", height: "100vh", background: "#000" }}>

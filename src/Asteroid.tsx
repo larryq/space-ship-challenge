@@ -53,8 +53,8 @@ import * as THREE from "three";
 import { extend, useFrame, useGraph } from "@react-three/fiber";
 // @ts-expect-error use instead of ignore so it doesn't hide other potential issues
 import asteroidModel from "./assets/asteroid1.glb";
-import ringPath from "./assets/8k_saturn_ring_alpha.png";
-//import ringPath from "./assets/saturn-cassini2.jpg";
+//import ringPath from "./assets/8k_saturn_ring_alpha.png";
+import ringPath from "./assets/green_rings1.png";
 
 const AsteroidRingMaterial = shaderMaterial(
   {
@@ -124,10 +124,13 @@ void main() {
     }
     // 4. THE MASK: Hide the center and the corners
     // This creates the "hole" in the middle and makes it a circle
-    float ringMask = smoothstep(0.4, 0.5, radius) * (1.0 - smoothstep(0.9, 1.0, radius));
+    float ringMask; 
     ringMask=smoothstep(uInner, uInner + 0.1, radius) * (1.0 - smoothstep(uOuter - 0.1, uOuter, radius));
 
-    
+    // If the mask is 0, kill the pixel (hides any square corners in the texture, if there is no alpha in it)
+    if (ringMask < 0.01) {
+        discard;
+    }
 
     gl_FragColor = vec4(texColor.rgb, texColor.a * uOpacity * ringMask);
 
@@ -213,7 +216,7 @@ export default function Asteroid({
             depthWrite={false}
             uSpeed={ringSettings.speed}
             uInner={0.48}
-            uOuter={2.9}
+            uOuter={0.9}
           />
         </mesh>
       )}

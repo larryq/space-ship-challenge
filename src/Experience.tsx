@@ -1,4 +1,4 @@
-import { Environment, Stars } from "@react-three/drei";
+import { Environment, Html, Stars } from "@react-three/drei";
 import { Physics, RapierRigidBody } from "@react-three/rapier";
 import { useGame } from "./store/GameStore";
 import { SpaceShip } from "./SpaceShip";
@@ -14,6 +14,7 @@ import { WorldBoundary } from "./WorldBoundary";
 import { SpaceDust } from "./SpaceDust";
 import { SpaceShell } from "./SpaceShell";
 import { LevelIndicator } from "./LevelIndicator";
+import { NavigationHUD } from "./NavigationHUD";
 
 export default function Experience() {
   const phase = useGame((state) => state.phase);
@@ -51,6 +52,7 @@ export default function Experience() {
         /> */}
         <SpaceDust count={60000} />
         <LevelIndicator />
+        <NavigationHUD shipRef={shipRef} />
         <ambientLight intensity={0.6} />
         <Environment
           preset="city" // 'city', 'night', 'warehouse', or 'sunset'

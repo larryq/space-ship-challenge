@@ -143,7 +143,13 @@ export function Stargate({
   }, [scene]);
 
   return (
-    <group ref={gateRef} position={position} scale={scale} rotation={rotation}>
+    <group
+      ref={gateRef}
+      position={position}
+      scale={scale}
+      rotation={rotation}
+      name="stargate"
+    >
       {/* 1. SOLID FRAME: 'trimesh' is best for complex hollow shapes like a gate */}
       <RigidBody type="fixed" colliders="trimesh">
         <primitive object={scene} />

@@ -28,7 +28,7 @@ export const SpaceShell = () => {
         uniform float uTime;
         varying vec3 vPosition;
 
-        // --- INDUSTRY STANDARD 3D SIMPLEX NOISE ---
+        // --- STANDARD 3D SIMPLEX NOISE ---
         vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
         vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
         vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
@@ -112,7 +112,7 @@ export const SpaceShell = () => {
         // Multiply dir by a scale for density. 
         // Add time to make it drift.
         float n = snoise(dir * 1.5 + uTime * 0.015);
-        n += 0.5 * snoise(dir * 3.0 - uTime * 0.01);
+        n += 0.5 * snoise(dir * 3.0 - uTime * 0.02);
         
         float mask = smoothstep(-0.2, 0.6, n);
         vec3 spaceColor = vec3(0.005, 0.005, 0.02);

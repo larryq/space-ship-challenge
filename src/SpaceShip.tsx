@@ -1,4 +1,5 @@
-import { useFrame } from "@react-three/fiber";
+/* eslint-disable react-hooks/rules-of-hooks */
+import { extend, useFrame } from "@react-three/fiber";
 import {
   RigidBody,
   RapierRigidBody,
@@ -12,23 +13,90 @@ import {
   useRef,
 } from "react";
 import { Vector3, Euler, Quaternion } from "three";
-import { useGLTF, useKeyboardControls } from "@react-three/drei";
+import { useGLTF, useKeyboardControls, Billboard } from "@react-three/drei";
+
 import { useGame } from "./store/GameStore";
 import * as THREE from "three";
 import thrusterVertex from "./shaders/thrusters.vert";
 import thrusterFragment from "./shaders/thrusters.frag";
+import heatShimmerVertex from "./shaders/heatShimmer.vert";
+import heatShimmerFragment from "./shaders/heatShimmer.frag";
 // @ts-expect-error use instead of ignore so it doesn't hide other potential issues
 import shipModelPath from "./assets/spaceship_1.glb";
+// @ts-expect-error use instead of ignore so it doesn't hide other potential issues
+import SectorAlphaCourse from "./assets/space_course_2.glb";
 
+const worldPos = new THREE.Vector3();
+const worldQuat = new THREE.Quaternion();
+const _VEC = new THREE.Vector3();
+const _QUAT = new THREE.Quaternion();
+const _DOWN = new THREE.Vector3(0, -1, 0);
+const _FORWARD = new THREE.Vector3(0, 0, -10);
+//First vs Third Person Camera Offsets
+const CAMERA_OFFSETS = {
+  thirdPerson: new THREE.Vector3(0, 3, 10),
+  firstPerson: new THREE.Vector3(0, 0.5, -2.5),
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const SpaceShip = forwardRef((props, ref) => {
+  const currentSector = useGame((state) => state.currentSector);
   const shipBody = useRef<RapierRigidBody>(null!);
+  const { nodes: trackNodes } = useGLTF(SectorAlphaCourse);
+
   const visualMeshRef = useRef<THREE.Group>(null!);
+  const exhaustRef = useRef<THREE.Group>(null!);
   const [, getKeys] = useKeyboardControls(); // Requires KeyboardControls wrapper in Experience
   // useImperativeHandle(ref, () => shipBody.current);
   const phase = useGame((state) => state.phase);
-  const worldPos = new THREE.Vector3();
-  const worldQuat = new THREE.Quaternion();
-  const offset = new THREE.Vector3(0, 3, 20);
+
+  const offset = new THREE.Vector3(0, 3, 10);
+
+  const arrowHelper = useMemo(() => {
+    const dir = new THREE.Vector3(0, -1, 0);
+    const origin = new THREE.Vector3(0, 0, 0);
+    return new THREE.ArrowHelper(dir, origin, 20, 0xff0000); // 20 units long, Red
+  }, []);
+
+  useEffect(() => {
+    if (visualMeshRef.current) {
+      // Traverse up to find the actual Scene root
+      let root = visualMeshRef.current;
+      while (root.parent) {
+        //@ts-expect-error use instead of ignore so it doesn't hide other potential issues
+        root = root.parent;
+      }
+      root.add(arrowHelper);
+    }
+    return () => {
+      arrowHelper.removeFromParent();
+    };
+  }, [arrowHelper]);
+
+  const getSectorCourse = (sector: number) => {
+    // switch (sector) {
+    //   case 0:
+    //     return useGLTF(SectorAlphaCourse);
+    //   case 1:
+    //     return useGLTF(SectorAlphaCourse);
+    //   case 2:
+    //     return useGLTF(SectorAlphaCourse);
+    //   case 3:
+    //     return useGLTF(SectorAlphaCourse);
+    //   default:
+    //     return useGLTF(SectorAlphaCourse); // Default to first course if unknown
+    // }
+  };
+
+  //////////////////////////////////////// Camera Mode Logic (First vs Third Person)
+  //Variables used for third person camera, when someone enters the course / track
+  //getSectorCourse(currentSector);
+  const courseFloor = trackNodes.CourseFloor as THREE.Mesh;
+  const raycaster = useMemo(() => new THREE.Raycaster(), []);
+  const lastToggleTime = useRef(0);
+  const cameraMode = useGame((state) => state.cameraMode);
+  const setCameraMode = useGame((state) => state.setCameraMode);
+  ///////////////////////////////////////
 
   useImperativeHandle(ref, () => ({
     body: shipBody.current,
@@ -36,9 +104,17 @@ export const SpaceShip = forwardRef((props, ref) => {
   }));
 
   // 1. Load the GLB
-  const { scene } = useGLTF(shipModelPath); // Replace with your path
+  const { scene } = useGLTF(shipModelPath);
 
   const clonedScene = useMemo(() => scene.clone(), [scene]);
+
+  const shipHeight = useMemo(() => {
+    const box = new THREE.Box3().setFromObject(clonedScene);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+    return size.y; // This gives you the height of the ship in meters
+  }, [clonedScene]);
+
   const ThrusterMaterial = useMemo(() => {
     return new THREE.ShaderMaterial({
       vertexShader: thrusterVertex,
@@ -56,6 +132,24 @@ export const SpaceShip = forwardRef((props, ref) => {
     });
   }, []);
   const thrusterMaterialRef = useRef(ThrusterMaterial);
+
+  const HeatShimmerMaterial = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      vertexShader: heatShimmerVertex,
+      fragmentShader: heatShimmerFragment,
+      uniforms: {
+        uTime: { value: 0 },
+        uVelocity: { value: 0 },
+      },
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      depthTest: true,
+    });
+  }, []);
+
+  const heatShimmerMaterialRef = useRef(HeatShimmerMaterial);
 
   useEffect(() => {
     // 4. Find the exhaust plane and apply the shader
@@ -85,31 +179,82 @@ export const SpaceShip = forwardRef((props, ref) => {
     }
   }, [phase]);
 
-  useFrame((state, delta) => {
-    if (!shipBody.current || !visualMeshRef.current) {
-      return;
-    }
+  useFrame(() => {
+    if (!exhaustRef.current || !visualMeshRef.current) return;
+    const exhaustPos = new THREE.Vector3(0, 0, 2);
+    exhaustPos.applyMatrix4(visualMeshRef.current.matrixWorld);
+    exhaustRef.current.position.copy(exhaustPos);
+  });
 
-    const { forward, backward, left, right, shift } = getKeys();
+  useFrame((state, delta) => {
+    if (!shipBody.current || !visualMeshRef.current) return;
+    const moveSpeed = 315 * delta;
 
     //////////////////////
 
-    const pos = shipBody.current.translation();
-    const rot = shipBody.current.rotation();
+    //visualMeshRef.current.updateWorldMatrix(true, false);
 
     visualMeshRef.current.getWorldPosition(worldPos);
     visualMeshRef.current.getWorldQuaternion(worldQuat);
 
-    // 2. Calculate camera offset
-    offset.set(0, 3, 10); // Desired camera position relative to ship
-    offset.applyQuaternion(worldQuat).add(worldPos);
+    const courseTrackMesh = state.scene.getObjectByName("CourseFloor");
 
-    const distance = state.camera.position.distanceTo(offset);
-    if (distance > 20) {
-      state.camera.position.copy(offset);
-    } else {
-      state.camera.position.lerp(offset, 0.1); // Faster lerp feels better
+    ////////////////////////////////////
+    // --- TRACK DETECTION. IS THE TRACK BENEATH US? ---
+    if (courseTrackMesh) {
+      courseTrackMesh.updateWorldMatrix(true, false);
+      // Raycast straight "down" relative to the visual ship (handles banking/tilting)
+      const rayDir = _VEC.copy(_DOWN).applyQuaternion(worldQuat);
+      raycaster.set(worldPos, rayDir);
+      const rayLengthMultiplier = 3.5; // Adjust this to make the ray longer/shorter based on your ship size and speed
+      raycaster.far = shipHeight * rayLengthMultiplier;
+
+      const overTrack =
+        raycaster.intersectObject(courseTrackMesh, true).length > 0;
+
+      // Update our visual helper
+      arrowHelper.setDirection(rayDir);
+      arrowHelper.position.copy(worldPos);
+
+      // Set color based on hit
+      if (overTrack) {
+        arrowHelper.setColor(0x00ff00); // Green for "Hit"
+      } else {
+        arrowHelper.setColor(0xff0000); // Red for "Miss"
+      }
+
+      const now = state.clock.elapsedTime;
+
+      const COOLDOWN_TIME = 1.5;
+      // Toggle first / third person camera logic with cooldown
+      if (now - lastToggleTime.current > COOLDOWN_TIME) {
+        if (overTrack && cameraMode === "thirdPerson") {
+          setCameraMode("firstPerson");
+          lastToggleTime.current = now;
+        } else if (!overTrack && cameraMode === "firstPerson") {
+          setCameraMode("thirdPerson");
+          lastToggleTime.current = now;
+        }
+      }
     }
+    ///////////END TRACK DETECTION////////////////////////
+
+    // // Calculate camera offset, based on current mode (first vs third person)
+
+    const currentOffset = CAMERA_OFFSETS[cameraMode];
+
+    // 3. Smoothly move camera to the target position
+    const targetPos = _VEC
+      .copy(currentOffset)
+      .applyQuaternion(worldQuat)
+      .add(worldPos);
+    const distance = state.camera.position.distanceTo(targetPos);
+    if (distance > 20) {
+      state.camera.position.copy(targetPos);
+    } else {
+      state.camera.position.lerp(targetPos, 0.1); // Faster lerp feels better
+    }
+    state.camera.up.set(0, 1, 0);
 
     // We take the "Up" direction of the ship's visual mesh and tell the camera to use it
     const shipUp = new THREE.Vector3(0, 1, 0);
@@ -117,8 +262,14 @@ export const SpaceShip = forwardRef((props, ref) => {
       visualMeshRef.current.getWorldQuaternion(new THREE.Quaternion()),
     );
     //state.camera.up.lerp(shipUp, 0.1); // Smoothly tilt the camera's "Up"
-    state.camera.up.set(0, 1, 0);
-    state.camera.lookAt(worldPos);
+
+    // Look slightly ahead of the ship
+
+    const lookAtPos = _VEC
+      .copy(_FORWARD)
+      .applyQuaternion(worldQuat)
+      .add(worldPos);
+    state.camera.lookAt(lookAtPos);
 
     // Update thruster shader uniforms
     ///////////////////////
@@ -133,6 +284,11 @@ export const SpaceShip = forwardRef((props, ref) => {
         const throttle = THREE.MathUtils.clamp(speed / 10, 0, 1);
         thrusterMaterialRef.current.uniforms.uThrottle.value = throttle;
       }
+    }
+    if (heatShimmerMaterialRef.current && shipBody.current) {
+      heatShimmerMaterialRef.current.uniforms.uTime.value += delta;
+      heatShimmerMaterialRef.current.uniforms.uVelocity.value =
+        shipBody.current.linvel().z / moveSpeed; // Assuming forward speed is along the Z axis, normalize 0-1
     }
     //finish updating shader uniforms
     ////////////////////////
@@ -153,7 +309,7 @@ export const SpaceShip = forwardRef((props, ref) => {
       // 2. Kill all spinning momentum
       shipBody.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
 
-      // 3. Reset Visual Tilt (The "Mesh")
+      // 3. Reset Visual Tilt
       if (visualMeshRef.current) {
         visualMeshRef.current.rotation.set(0, 0, 0);
       }
@@ -163,7 +319,6 @@ export const SpaceShip = forwardRef((props, ref) => {
     ////////////////////////
 
     const impulse = new Vector3(0, 0, 0);
-    const moveSpeed = 315 * delta;
 
     // Rotation (Banking)
     // We tilt the ship visually, but apply torque to the physics body
@@ -195,8 +350,9 @@ export const SpaceShip = forwardRef((props, ref) => {
     const pitchSpeed = 0.8 * delta;
     const maxPitch = Math.PI / 2 - 0.4; // 90 degrees minus a little buffer to prevent gimbal lock
 
-    if (forward) targetPitch -= pitchSpeed;
-    if (backward) targetPitch += pitchSpeed;
+    const { forward, backward, left, right, shift, level } = getKeys();
+    if (forward) targetPitch += pitchSpeed;
+    if (backward) targetPitch -= pitchSpeed;
 
     //handle yaw (turning left/right)
     if (left) currentEuler.y += yawSpeed;
@@ -205,8 +361,11 @@ export const SpaceShip = forwardRef((props, ref) => {
     // AUTO-LEVELING: If shift is released, drift pitch back to 0
     // 0.05 at 60fps is roughly a half-second return
     // if (!forward && !backward) {
-    //   targetPitch = THREE.MathUtils.lerp(targetPitch, 0, 0.04);
+    //   targetPitch = THREE.MathUtils.lerp(targetPitch, 0, 0.009);
     // }
+    if (level) {
+      targetPitch = THREE.MathUtils.lerp(targetPitch, 0, 0.4);
+    }
 
     // Clamp the pitch so it never exceeds target pitch up or down
     currentEuler.x = THREE.MathUtils.clamp(targetPitch, -maxPitch, maxPitch);
@@ -272,28 +431,39 @@ export const SpaceShip = forwardRef((props, ref) => {
   });
 
   return (
-    <RigidBody
-      ref={shipBody}
-      linearDamping={0.8}
-      angularDamping={1}
-      name="ship"
-      gravityScale={0}
-      friction={0}
-      //colliders="hull" // Uses your Blender model's shape
-      //colliders="cuboid" // Simpler box collider
-      colliders={false}
-      mass={1}
-    >
-      <CuboidCollider args={[1, 1, 2]} />
-      <group ref={visualMeshRef}>
-        <mesh>
-          <primitive
-            object={clonedScene}
-            scale={0.5}
-            rotation={[0, Math.PI, 0]}
-          />
-        </mesh>
+    <>
+      <RigidBody
+        ref={shipBody}
+        linearDamping={0.8}
+        angularDamping={1}
+        name="ship"
+        gravityScale={0}
+        friction={0}
+        //colliders="hull" // Uses your Blender model's shape
+        //colliders="cuboid" // Simpler box collider
+        colliders={false}
+        canSleep={false}
+        mass={1}
+      >
+        <CuboidCollider args={[1, 1, 2]} />
+        <group ref={visualMeshRef}>
+          <mesh>
+            <primitive
+              object={clonedScene}
+              scale={0.5}
+              rotation={[0, Math.PI, 0]}
+            />
+          </mesh>
+        </group>
+      </RigidBody>
+      {/* Heat shimmer lives outside RigidBody, synced manually */}
+      <group ref={exhaustRef}>
+        <Billboard>
+          <mesh material={HeatShimmerMaterial}>
+            <planeGeometry args={[1.5, 1.5]} />
+          </mesh>
+        </Billboard>
       </group>
-    </RigidBody>
+    </>
   );
 });

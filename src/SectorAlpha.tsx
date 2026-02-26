@@ -3,9 +3,9 @@ import { RigidBody } from "@react-three/rapier";
 import Asteroid from "./Asteroid";
 import { Stargate } from "./Stargate2";
 import { Courseway } from "./Courseway";
+import Planet from "./Planet";
 
 export default function SectorAlpha({ shipRef }) {
-  console.log("Rendering Sector Alpha");
   return (
     <group>
       {/* 1. Point Lights to create "Space Contrast" */}
@@ -23,16 +23,11 @@ export default function SectorAlpha({ shipRef }) {
         scale={4}
         hasRings={true}
       />
-      <Asteroid
-        key="asteroid5"
-        position={[-2588, -1100, -4120]}
-        scale={624}
-        hasRings={false}
-      />
+
       <Courseway
         shipRef={shipRef}
-        scale={13}
-        position={[-125, 0, -150.0]}
+        scale={26}
+        position={[100, -75, -350]}
         rotation={[0, -Math.PI / 2, 0]}
       />
 
@@ -41,6 +36,12 @@ export default function SectorAlpha({ shipRef }) {
         scale={[5, 5, 5]}
         rotation={[0, -Math.PI / 2, 0]}
         color="#00ff62"
+      />
+      <Planet
+        position={[-2588, -1100, -4120]}
+        mode={1}
+        size={624}
+        rings={false}
       />
 
       {/* Optional: Add a subtle fog to make the distance feel vast */}

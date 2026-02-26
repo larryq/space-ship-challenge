@@ -4,7 +4,6 @@ import Asteroid from "./Asteroid";
 import { Stargate } from "./Stargate";
 
 export default function SectorAlpha() {
-  console.log("Rendering Sector Zero");
   return (
     <group>
       {/* 1. Point Lights to create "Space Contrast" */}

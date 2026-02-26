@@ -23,17 +23,14 @@ export function WarpTunnel({ shipBodyRef: shipRef }) {
     const shipMesh = shipRef.current.mesh;
     if (!shipMesh) return;
 
-    // 3. THE FIX: Get the mesh's world position.
-    // This is a pure Three.js call. No WASM, no physics, no crashing.
+    // This is a pure Three.js call. No WASM, no physics, no crashing.  Doing this with Rapier was causing some weird issues where the ship would get "stuck" in the tunnel or the tunnel would disappear. By directly manipulating the Three.js mesh, we avoid those issues entirely.
     shipMesh.getWorldPosition(tunnel.current.position);
 
-    // 1. Keep the tunnel centered on the ship
     try {
-      // 2. Speed up the scrolling
-      texture.offset.y += delta * 5; // Increased speed
+      texture.offset.y -= delta * 3.5; //increase for faster effect
 
       // 3. Subtle "shake" or "pulse" for effect
-      tunnel.current.rotation.y += delta * 0.2;
+      tunnel.current.rotation.y += delta * 2.79;
       tunnel.current.visible = true;
     } catch (e) {
       tunnel.current.visible = false;
@@ -42,7 +39,6 @@ export function WarpTunnel({ shipBodyRef: shipRef }) {
 
   return (
     <mesh ref={tunnel} rotation={[Math.PI / 2, 0, 0]}>
-      {/* Make it MUCH longer so you don't see the ends */}
       <cylinderGeometry args={[8, 8, 400, 32, 1, true]} />
       <meshBasicMaterial
         map={texture}

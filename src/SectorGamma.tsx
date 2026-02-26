@@ -4,7 +4,6 @@ import Asteroid from "./Asteroid";
 import { Stargate } from "./Stargate2";
 
 export default function SectorBeta() {
-  console.log("Rendering Sector Gamma");
   return (
     <group>
       {/* 1. Point Lights to create "Space Contrast" */}

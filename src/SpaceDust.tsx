@@ -163,10 +163,16 @@ export const SpaceDust = ({ count = 2000 }) => {
   useFrame((state, delta) => {
     // eslint-disable-next-line react-hooks/immutability
     uniforms.uTime.value += delta;
-    // Just update the ONE uniform instead of 5,000 positions
     uniforms.uShipPos.value.copy(state.camera.position);
     // Calculate velocity: Current Position - Last Position
     velocity.current.subVectors(state.camera.position, lastPos.current);
+    // if (state.camera.position.z - lastPos.current.z < -0.1) {
+    //   velocity.current.set(0, 0, 0);
+    //   console.log(
+    //     `Velocity zeroed to prevent glitch: ${state.camera.position.z - lastPos.current.z}`,
+    //   );
+    // }
+
     lastPos.current.copy(state.camera.position);
 
     uniforms.uVelocity.value.copy(velocity.current); // Pass this to shader

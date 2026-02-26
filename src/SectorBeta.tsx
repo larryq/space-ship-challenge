@@ -1,10 +1,10 @@
-import { Float } from "@react-three/drei";
+import { Float, Plane } from "@react-three/drei";
 import { RigidBody } from "@react-three/rapier";
 import Asteroid from "./Asteroid";
 import { Stargate } from "./Stargate2";
+import Planet from "./Planet";
 
 export default function SectorBeta() {
-  console.log("Rendering Sector Beta");
   return (
     <group>
       {/* 1. Point Lights to create "Space Contrast" */}
@@ -26,6 +26,7 @@ export default function SectorBeta() {
         rotation={[0, -Math.PI / 2, 0]}
         color="#1e00ff"
       />
+      <Planet position={[-50, -30, -200]} mode={1} size={20} />
 
       {/* Optional: Add a subtle fog to make the distance feel vast */}
       <color attach="background" args={["#020205"]} />

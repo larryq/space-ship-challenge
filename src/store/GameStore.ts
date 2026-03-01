@@ -35,7 +35,7 @@ export const useGame = create<GameState>((set, get) => ({
   cameraMode: "thirdPerson",
   warpTextureIndex: 0,
   isRacing: false,
-  isLoaded: false,
+  isLoaded: true,
   toggleTrackMode: () =>
     set((state) => {
       const newRacingState = !state.isRacing;

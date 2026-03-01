@@ -31,7 +31,6 @@ export default function App() {
           <Suspense fallback={null}>
             <Experience />
           </Suspense>
-          <LoadingWatcher />
         </Canvas>
         <IntroScreen />
         {/* //THE 2D UI (Overlayed on top)

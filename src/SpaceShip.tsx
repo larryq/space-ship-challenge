@@ -258,6 +258,7 @@ export const SpaceShip = forwardRef(
         state.camera.position.copy(targetPos);
       } else {
         state.camera.position.lerp(targetPos, 0.1); // Faster lerp feels better
+        //state.camera.position.copy(targetPos);
       }
       state.camera.up.set(0, 1, 0);
 
@@ -464,14 +465,14 @@ export const SpaceShip = forwardRef(
             </mesh>
           </group>
         </RigidBody>
-        {/* Heat shimmer lives outside RigidBody, synced manually */}
+        {/* Heat shimmer lives outside RigidBody, synced manually
         <group ref={exhaustRef}>
           <Billboard>
             <mesh material={HeatShimmerMaterial}>
               <planeGeometry args={[1.5, 1.5]} />
             </mesh>
           </Billboard>
-        </group>
+        </group> */}
       </>
     );
   },

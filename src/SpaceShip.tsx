@@ -23,6 +23,7 @@ import heatShimmerVertex from "./shaders/heatShimmer.vert";
 import heatShimmerFragment from "./shaders/heatShimmer.frag";
 // @ts-expect-error use instead of ignore so it doesn't hide other potential issues
 import shipModelPath from "./assets/spaceship_1.glb";
+//SHIP MODEL COURTESTY OF QUATERNIUS-- https://quaternius.com/packs/ultimatespacekit.html
 // @ts-expect-error use instead of ignore so it doesn't hide other potential issues
 import SectorAlphaCourse from "./assets/space_course_2.glb";
 

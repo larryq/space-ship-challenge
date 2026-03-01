@@ -1,12 +1,16 @@
 /* eslint-disable react-hooks/purity */
 // IntroScreen.tsx
+import { useProgress } from "@react-three/drei";
 import { useGame } from "./store/GameStore";
 
 export default function IntroScreen() {
   const showIntro = useGame((state) => state.showIntro);
   const setShowIntro = useGame((state) => state.setShowIntro);
+  const { active } = useProgress();
 
-  if (!showIntro) return null;
+  const isLoaded = useGame((state) => state.isLoaded);
+
+  if (!isLoaded || !showIntro) return null;
 
   return (
     <div
@@ -109,9 +113,10 @@ export default function IntroScreen() {
           }}
         >
           Welcome to Space Explorer! Fly around each sector and enjoy the
-          scenery. Try a track course if you'd like — and when ready, fly
-          through a glowing <span style={{ color: "#00ff88" }}>Stargate</span>{" "}
-          to move on to the next sector.
+          scenery. Follow the arrows on a track course if you'd like — and when
+          ready, fly through a glowing{" "}
+          <span style={{ color: "#00ff88" }}>Stargate</span> to move on to the
+          next sector.
         </p>
 
         {/* Controls */}

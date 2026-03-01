@@ -14,6 +14,7 @@ interface GameState {
   showIntro: boolean;
   setShowIntro: (show: boolean) => void;
   warpTextureIndex: number;
+  isLoaded: boolean;
 
   // Actions
   start: () => void;
@@ -22,6 +23,7 @@ interface GameState {
   reset: () => void;
   collectWaypoint: () => void;
   setWarpTextureIndex: (index: number) => void;
+  setIsLoaded: (loaded: boolean) => void;
 }
 
 export const useGame = create<GameState>((set, get) => ({
@@ -33,6 +35,7 @@ export const useGame = create<GameState>((set, get) => ({
   cameraMode: "thirdPerson",
   warpTextureIndex: 0,
   isRacing: false,
+  isLoaded: false,
   toggleTrackMode: () =>
     set((state) => {
       const newRacingState = !state.isRacing;
@@ -48,6 +51,7 @@ export const useGame = create<GameState>((set, get) => ({
   setWarpTextureIndex: (i: number) => set({ warpTextureIndex: i }),
 
   start: () => set({ phase: "playing", score: 0, health: 100 }),
+  setIsLoaded: (loaded: boolean) => set({ isLoaded: loaded }),
 
   // Action to increment the counter
   collectWaypoint: () =>

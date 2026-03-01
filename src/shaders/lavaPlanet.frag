@@ -2,6 +2,7 @@ precision highp float;
 
 uniform float uTime;
 uniform int   uMode;
+uniform float uShadowStrength;
 
 varying vec3 vLocalPos;
 varying vec3 vWorldNorm;
@@ -45,8 +46,8 @@ float warpedFbm(vec3 p, int octaves) {
 }
 
 vec3 lavaColor(vec3 p) {
-  float h    = warpedFbm(p * 2.0 + vec3(uTime * 0.03), 7);
-  float glow = fbm(p * 5.0 + vec3(uTime * 0.05), 4);
+  float h    = warpedFbm(p * 2.0 + vec3(uTime * 0.07), 7);
+  float glow = fbm(p * 5.0 + vec3(uTime * 0.07), 4);
 
   vec3 col;
   if      (h < 0.30) col = mix(vec3(0.06,0.04,0.04), vec3(0.20,0.05,0.02), h/0.30);
@@ -87,7 +88,8 @@ void main() {
 
   // Soft terminator shadow
   float terminator = smoothstep(-0.1, 0.15, dot(n, sunDir));
-  col *= mix(0.05, 1.0, terminator);
+  float darkSide = 1.0 - uShadowStrength;
+  col *= mix(darkSide, 1.0, terminator);
 
   gl_FragColor = vec4(col, 1.0);
 }

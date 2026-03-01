@@ -2,6 +2,7 @@ precision highp float;
 
 uniform float uTime;
 uniform int   uMode;
+uniform float uShadowStrength;
 
 varying vec3 vLocalPos;
 varying vec3 vWorldNorm;
@@ -76,7 +77,7 @@ void main() {
   vec3 sunDir = normalize(vec3(-0.6, 0.4, 0.8));
 
   float diff = max(dot(n, sunDir), 0.0);
-  float amb  = 0.08;
+  float amb  = 0.1; 
   float spec = pow(max(dot(reflect(-sunDir, n), v), 0.0), 32.0) * 0.25;
 
   // Atmosphere rim glow
@@ -91,7 +92,8 @@ void main() {
 
   // Soft terminator shadow
   float terminator = smoothstep(-0.1, 0.15, dot(n, sunDir));
-  col *= mix(0.05, 1.0, terminator);
+  float darkSide = 1.0 - uShadowStrength;
+  col *= mix(darkSide, 1.0, terminator);
 
   gl_FragColor = vec4(col, 1.0);
 }

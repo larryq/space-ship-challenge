@@ -2,31 +2,104 @@ import { Float, Plane } from "@react-three/drei";
 import { RigidBody } from "@react-three/rapier";
 import Asteroid from "./Asteroid";
 import { Stargate } from "./Stargate2";
-import Planet from "./Planet";
+import Planet, { PlanetShaders } from "./Planet";
+import { useMemo, useRef } from "react";
+import * as THREE from "three";
+import generateAsteroidField from "./generateAsteroidField";
+import { Courseway } from "./Courseway";
+// @ts-expect-error use instead of ignore so it doesn't hide other potential issues
+import courseModel from "./assets/space_course_2.glb";
+// @ts-expect-error use instead of ignore so it doesn't hide other potential issues
+import asteroidModel2 from "./assets/asteroid1.glb";
+import ringPath from "./assets/green_rings1.png";
+import ringPath2 from "./assets/neon_rings1.png";
+import ringPath3 from "./assets/blue_rings2.png";
+import ringPath4 from "./assets/red_rings1.png";
 
-export default function SectorBeta() {
+const PROTECTED_POINTS: [number, number, number][] = [
+  [120, 0, -350], // stargate
+  [-5, -10, -100], // courseway
+];
+
+const ASTEROID_CONFIG = {
+  count: 300,
+  minScale: 0.5,
+  maxScale: 2.5,
+  maxRadius: 1100, // max distance from origin
+  minRadius: 30, // don't spawn too close to origin either
+  minClearance: 6, // minimum distance from protected points
+  ringPercent: 0.45, // 1% get rings
+  modelWeights: [0.4, 0.6],
+};
+
+export default function SectorBeta({
+  shipRef,
+  courseRef,
+}: {
+  shipRef: React.RefObject<THREE.Mesh>;
+  courseRef: React.RefObject<THREE.Mesh>;
+}) {
+  const asteroids = useMemo(
+    () => generateAsteroidField(ASTEROID_CONFIG, PROTECTED_POINTS),
+    [],
+  );
   return (
     <group>
       {/* 1. Point Lights to create "Space Contrast" */}
       <pointLight position={[20, 20, 20]} intensity={2} color="red" />
       <pointLight position={[-20, -10, -50]} intensity={1} color="orange" />
 
-      {/* 2. Obstacle Course: Scattered Asteroids */}
-      {/* Positioned along the Z-axis (the flight path) */}
-      <Asteroid key="asteroid1" position={[10, 5, -30]} scale={1} />
-      <Asteroid key="asteroid2" position={[-12, -2, -50]} scale={1} />
-      <Asteroid key="asteroid3" position={[5, -8, -80]} scale={0.5} />
-      <Asteroid key="asteroid4" position={[-5, 10, -120]} scale={2} />
+      {asteroids.map((a) => (
+        <Asteroid
+          key={`ast-${a.id}`}
+          position={a.position}
+          scale={a.scale}
+          model={a.model}
+          hasRings={a.hasRings}
+          ringTexturePath={a.ringTexturePath}
+        />
+      ))}
 
       {/* 3. The Goal: Stargate at the end of the run */}
 
       <Stargate
-        position={[0, 0, -100]}
-        scale={[5, 5, 5]}
+        position={[120, 0, -350]}
+        scale={[7, 7, 7]}
         rotation={[0, -Math.PI / 2, 0]}
         color="#1e00ff"
       />
-      <Planet position={[-50, -30, -200]} mode={1} size={20} />
+      <Courseway
+        shipRef={shipRef}
+        scale={20}
+        model={courseModel}
+        courseRef={courseRef}
+        position={[-5, -10, -100]}
+        rotation={[0, -Math.PI / 2, 0]}
+        useShader={false}
+        uEmberColorA={new THREE.Color(1.0, 0.0, 0.0)}
+      />
+
+      <Planet
+        position={[-2188, -344, -3600]}
+        mode={1}
+        size={677}
+        fragmentShader={PlanetShaders.icePlanet}
+      />
+      <Planet
+        position={[1888, -444, -3600]}
+        mode={1}
+        size={277}
+        fragmentShader={PlanetShaders.bioLuminence}
+        shadowStrength={0.1}
+      />
+
+      <Asteroid
+        position={[-3, 600, 2500]}
+        scale={277}
+        model={asteroidModel2}
+        hasRings={true}
+        ringTexturePath={ringPath2}
+      />
 
       {/* Optional: Add a subtle fog to make the distance feel vast */}
       <color attach="background" args={["#020205"]} />

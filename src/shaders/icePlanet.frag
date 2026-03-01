@@ -2,6 +2,7 @@ precision highp float;
 
 uniform float uTime;
 uniform int   uMode;
+uniform float uShadowStrength;
 
 varying vec3 vLocalPos;
 varying vec3 vWorldNorm;
@@ -87,7 +88,10 @@ void main() {
   col = mix(col, atmCol, rim * 0.5);
 
   float term = smoothstep(-0.1, 0.2, dot(n, sunDir));
-  col *= mix(0.04, 1.0, term);
+   float darkSide = 1.0 - uShadowStrength;
+  col *= mix(darkSide, 1.0, term);
+
+
 
   gl_FragColor = vec4(col, 1.0);
 }

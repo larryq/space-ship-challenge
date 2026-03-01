@@ -1,43 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/purity */
-// import { RigidBody } from "@react-three/rapier";
-// import { useGLTF, useAnimations } from "@react-three/drei";
-// import { useMemo } from "react";
-// import { SkeletonUtils } from "three-stdlib";
-// import { useGraph } from "@react-three/fiber";
-// // @ts-expect-error use instead of ignore so it doesn't hide other potential issues
-// import asteroidModel from "./assets/asteroid1.glb";
-
-// export default function Asteroid({
-//   position,
-//   scale = 1,
-// }: {
-//   position: [number, number, number];
-//   scale?: number;
-// }) {
-//   // 1. Load the GLB
-//   const { scene } = useGLTF(asteroidModel);
-
-//   // 2. Clone the scene safely for multiple instances
-//   // SkeletonUtils.clone is better than scene.clone() as it handles
-//   // nested hierarchies and multiple materials correctly.
-//   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene]);
-
-//   // 3. Map the nodes so they are accessible in this specific instance
-//   const { nodes } = useGraph(clone);
-
-//   return (
-//     <RigidBody type="fixed" colliders="hull" position={position}>
-//       {/* We wrap the clone in a primitive.
-//          Because it's a clone, it carries all the child meshes
-//          and their respective materials from Blender.
-//       */}
-//       <primitive object={clone} scale={scale} />
-//     </RigidBody>
-//   );
-// }
-
-// useGLTF.preload(asteroidModel);
 
 /* eslint-disable react-hooks/purity */
 import { RigidBody } from "@react-three/rapier";
@@ -146,15 +108,18 @@ export default function Asteroid({
   position,
   scale = 1,
   hasRings = false, // New optional prop
+  model = asteroidModel,
+  ringTexturePath = ringPath,
 }: {
   position: [number, number, number];
   scale?: number;
   hasRings?: boolean;
+  model?: string;
+  ringTexturePath?: string;
 }) {
   const ringMatRef = useRef<any>(null!);
-  const ringTexture = useTexture(ringPath);
-  const { scene } = useGLTF(asteroidModel);
-
+  const ringTexture = useTexture(ringTexturePath);
+  const { scene } = useGLTF(model);
   // useMemo ensures these random values stay the same for THIS asteroid
   const { clone, randomRotation, ringSettings } = useMemo(() => {
     const instance = SkeletonUtils.clone(scene);

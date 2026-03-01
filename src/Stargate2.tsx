@@ -57,6 +57,8 @@ export function Stargate({
 }) {
   const { scene } = useGLTF(stargate); // Swap with your path
   const enterGate = useGame((state) => state.enterGate);
+  const setWarpTextureIndex = useGame((state) => state.setWarpTextureIndex);
+  const numWarpTextures = 9;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const shimmerRef = useRef<any>(null!);
   const particlesRef = useRef<THREE.Points>(null!);
@@ -166,6 +168,7 @@ export function Stargate({
           ]}
           onIntersectionEnter={({ other }) => {
             if (other.rigidBodyObject?.name === "ship") enterGate();
+            setWarpTextureIndex(Math.floor(Math.random() * numWarpTextures));
           }}
         />
       </RigidBody>

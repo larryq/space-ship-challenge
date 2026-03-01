@@ -2,6 +2,7 @@ precision highp float;
 
 uniform float uTime;
 uniform int   uMode;
+uniform float uShadowStrength;
 
 varying vec3 vLocalPos;
 varying vec3 vWorldNorm;
@@ -111,8 +112,9 @@ void main() {
 
   // Dim distant sun — this world is far from its star
   vec3 sunDir = normalize(vec3(-0.6, 0.4, 0.8));
-  float diff  = max(dot(n, sunDir), 0.0) * 0.4; // much weaker sunlight
-  float amb   = 0.04;
+  float amb   = 1.0 - uShadowStrength; // let the glow provide most of the lighting, so shadows aren't pitch black
+
+  float diff  = max(dot(n, sunDir), 0.0) * uShadowStrength; 
 
   // No specular — the bioluminescence is the star of the show
 
@@ -126,7 +128,8 @@ void main() {
 
   // Terminator — but keep night side visible due to self-illumination
   float term = smoothstep(-0.15, 0.2, dot(n, sunDir));
-  col *= mix(0.35, 1.0, term); // night side stays at 35% — the glow lights it
+  float darkSide = 1.0 - uShadowStrength;
+  col *= mix(darkSide, 1.0, term); // night side stays at 35% — the glow lights it
 
   gl_FragColor = vec4(col, 1.0);
 }

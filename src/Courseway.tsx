@@ -2,10 +2,9 @@
 /* eslint-disable react-hooks/refs */
 import { shaderMaterial, useGLTF } from "@react-three/drei";
 import { extend, useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-// @ts-expect-error use instead of ignore so it doesn't hide other potential issues
-import courseModel from "./assets/space_course_3.glb";
+
 import { useGame } from "./store/GameStore";
 import { RigidBody } from "@react-three/rapier";
 
@@ -13,142 +12,15 @@ import { RigidBody } from "@react-three/rapier";
 const _shipVec = new THREE.Vector3();
 const _arrowVec = new THREE.Vector3();
 
-// const CourseFloorMaterial = shaderMaterial(
-//   {
-//     uTime: 0,
-//     uMode: 1, // 1 = lava, 2 = ice (for atm rim color)
-//   },
-//   // Vertex
-//   `
-//   varying vec3 vWorldPos;
-//   varying vec3 vWorldNorm;
-//   varying vec3 vViewDir;
-
-//   void main() {
-//     vec4 worldPos = modelMatrix * vec4(position, 1.0);
-//     vWorldPos = worldPos.xyz;
-//     vWorldNorm = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
-//     vViewDir = normalize(cameraPosition - worldPos.xyz);
-//     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-//   }
-//   `,
-//   // Fragment
-//   `
-//   precision highp float;
-
-//   uniform float uTime;
-//   uniform int   uMode;
-
-//   varying vec3 vWorldPos;
-//   varying vec3 vWorldNorm;
-//   varying vec3 vViewDir;
-
-//   // ── Noise ────────────────────────────────────────────────────────────────
-//   float hash3(vec3 p) {
-//     return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453);
-//   }
-
-//   float noise(vec3 p) {
-//     vec3 i = floor(p);
-//     vec3 f = fract(p);
-//     f = f * f * (3.0 - 2.0 * f);
-//     return mix(
-//       mix(mix(hash3(i),             hash3(i+vec3(1,0,0)), f.x),
-//           mix(hash3(i+vec3(0,1,0)), hash3(i+vec3(1,1,0)), f.x), f.y),
-//       mix(mix(hash3(i+vec3(0,0,1)), hash3(i+vec3(1,0,1)), f.x),
-//           mix(hash3(i+vec3(0,1,1)), hash3(i+vec3(1,1,1)), f.x), f.y), f.z);
-//   }
-
-//   float fbm(vec3 p, int octaves) {
-//     float value = 0.0, amplitude = 0.5, total = 0.0;
-//     for (int i = 0; i < 8; i++) {
-//       if (i >= octaves) break;
-//       value     += amplitude * noise(p);
-//       total     += amplitude;
-//       p          = p * 2.1 + vec3(1.7, 9.2, 6.3);
-//       amplitude *= 0.5;
-//     }
-//     return value / total;
-//   }
-
-//   float warpedFbm(vec3 p, int octaves) {
-//     vec3 q = vec3(
-//       fbm(p,                        octaves),
-//       fbm(p + vec3(5.2, 1.3, 8.1), octaves),
-//       fbm(p + vec3(1.7, 9.2, 3.5), octaves)
-//     );
-//     return fbm(p + 1.2 * q, octaves);
-//   }
-
-//   // Cylindrical sample coords: angle around Y axis + height
-//   // Scale controls how zoomed in the pattern is
-//   vec3 sampleCoords(vec3 worldPos, float scale) {
-//     float angle = atan(worldPos.z, worldPos.x); // -PI to PI around Y axis
-//     return vec3(angle * 2.0, worldPos.y, 0.0) * scale;
-//   }
-
-//   vec3 lavaColor(vec3 p) {
-//     float h    = warpedFbm(p * 2.0 + vec3(uTime * 0.03), 7);
-//     float glow = fbm(p * 5.0 + vec3(uTime * 0.05), 4);
-
-//     vec3 col;
-//     if      (h < 0.30) col = mix(vec3(0.06,0.04,0.04), vec3(0.20,0.05,0.02), h/0.30);
-//     else if (h < 0.55) col = mix(vec3(0.20,0.05,0.02), vec3(0.95,0.30,0.02), (h-0.30)/0.25);
-//     else if (h < 0.75) col = mix(vec3(0.95,0.30,0.02), vec3(1.00,0.82,0.20), (h-0.55)/0.20);
-//     else               col = mix(vec3(1.00,0.82,0.20), vec3(1.0),             (h-0.75)/0.25);
-
-//     col += vec3(1.00,0.82,0.20) * glow * 0.2;
-//     return col;
-//   }
-
-//   vec3 iceColor(vec3 p) {
-//     float h    = warpedFbm(p * 2.0 + vec3(uTime * 0.01), 7);
-//     float glow = fbm(p * 4.0 + vec3(uTime * 0.02), 4);
-
-//     vec3 col;
-//     if      (h < 0.30) col = mix(vec3(0.05,0.10,0.20), vec3(0.20,0.35,0.55), h/0.30);
-//     else if (h < 0.55) col = mix(vec3(0.20,0.35,0.55), vec3(0.55,0.75,0.90), (h-0.30)/0.25);
-//     else if (h < 0.75) col = mix(vec3(0.55,0.75,0.90), vec3(0.85,0.93,0.98), (h-0.55)/0.20);
-//     else               col = mix(vec3(0.85,0.93,0.98), vec3(1.0),             (h-0.75)/0.25);
-
-//     col += vec3(0.6, 0.8, 1.0) * glow * 0.15;
-//     return col;
-//   }
-
-//   void main() {
-//     vec3 n = normalize(vWorldNorm);
-//     vec3 v = normalize(vViewDir);
-
-//     // Use cylindrical coords for noise sampling so it looks good on a tube
-//     vec3 p = sampleCoords(vWorldPos, 0.005);
-
-//     vec3 col = uMode == 1 ? lavaColor(p) : iceColor(p);
-
-//     // Very subtle sun — just a gentle warmth, not a harsh day/night split
-//     vec3 sunDir = normalize(vec3(-0.6, 0.4, 0.8));
-//     float diff = max(dot(n, sunDir), 0.0);
-//     float amb  = 0.75; // high ambient so the dark side is barely darker
-//     float lighting = amb + diff * 0.25; // sun contributes only 25% on top of ambient
-
-//     col *= lighting;
-
-//     // Subtle specular
-//     float spec = pow(max(dot(reflect(-sunDir, n), v), 0.0), 32.0) * 0.08;
-//     col += spec;
-
-//     // Very faint rim glow
-//     float rim = pow(1.0 - max(dot(n, v), 0.0), 4.0);
-//     vec3 atmCol = uMode == 1 ? vec3(0.8, 0.4, 0.2) : vec3(0.6, 0.8, 1.0);
-//     col = mix(col, atmCol, rim * 0.15); // was 0.6 on the planets, very subtle now
-
-//     gl_FragColor = vec4(col, 1.0);
-//   }
-//   `,
-// );
-
 const CourseFloorMaterial = shaderMaterial(
   {
     uTime: 0,
+    uBrightness: 1.5,
+    uEmberColorA: new THREE.Color(0.3, 0.6, 1.0), // blue bright
+    uEmberColorADark: new THREE.Color(0.05, 0.2, 0.8), // blue dark
+    uEmberColorB: new THREE.Color(1.0, 0.55, 0.1), // copper bright
+    uEmberColorBDark: new THREE.Color(0.6, 0.1, 0.02), // copper dark
+    uBgColor: new THREE.Color(0.04, 0.06, 0.12), // dark blue-black default
   },
   // Vertex
   `
@@ -168,6 +40,13 @@ const CourseFloorMaterial = shaderMaterial(
   `
  precision highp float;
 uniform float uTime;
+uniform float uBrightness;      // 0.5 = darker, 1.0 = normal, 1.5 = brighter
+uniform vec3  uEmberColorA;     // cool color (was blue:  0.3, 0.6, 1.0)
+uniform vec3  uEmberColorADark; // cool dark  (was:       0.05, 0.2, 0.8)
+uniform vec3  uEmberColorB;     // warm color (was copper: 1.0, 0.55, 0.1)
+uniform vec3  uEmberColorBDark; // warm dark  (was:        0.6, 0.1, 0.02)
+uniform vec3  uBgColor;        // background color 
+
 
 varying vec3 vWorldPos;
 varying vec3 vWorldNorm;
@@ -229,10 +108,15 @@ vec3 ember3D(vec3 cellId, vec3 localPos) {
   glow *= flicker;
 
   vec3 color;
+  // if (seed3 < 0.5) {
+  //   color = mix(vec3(0.3, 0.6, 1.0), vec3(0.05, 0.2, 0.8), dist / size);
+  // } else {
+  //   color = mix(vec3(1.0, 0.55, 0.1), vec3(0.6, 0.1, 0.02), dist / size);
+  // }
   if (seed3 < 0.5) {
-    color = mix(vec3(0.3, 0.6, 1.0), vec3(0.05, 0.2, 0.8), dist / size);
+    color = mix(uEmberColorA, uEmberColorADark, dist / size);
   } else {
-    color = mix(vec3(1.0, 0.55, 0.1), vec3(0.6, 0.1, 0.02), dist / size);
+    color = mix(uEmberColorB, uEmberColorBDark, dist / size);
   }
 
   return color * glow;
@@ -245,8 +129,9 @@ void main() {
   vec3 scaledPos = vWorldPos * 0.3;
 
   float nebula = fbm2(scaledPos.xz * 3.0 + vec2(uTime * 0.02));
+
   vec3 bgColor = mix(
-    mix(vec3(0.04, 0.06, 0.12), vec3(0.10, 0.04, 0.03), fbm2(scaledPos.xz + uTime * 0.01)),
+    /*mix(vec3(0.04, 0.06, 0.12), vec3(0.10, 0.04, 0.03), fbm2(scaledPos.xz + uTime * 0.01))*/uBgColor,
     mix(
       vec3(0.15, 0.15, 0.15),//vec3(0.08, 0.12, 0.25),
       vec3(0.15, 0.15, 0.15),//vec3(0.20, 0.08, 0.04),
@@ -286,6 +171,7 @@ void main() {
   // 4. Subtle specular highlight so the surface catches the light
   float spec = pow(max(dot(reflect(-sunDir, n), v), 0.0), 24.0) * 0.15;
   col += vec3(0.3, 0.5, 0.8) * spec; // blue-tinted specular fits the space theme
+  col*=uBrightness; // Apply overall brightness control
 
   gl_FragColor = vec4(col, 1.0);
 }
@@ -301,6 +187,12 @@ declare module "@react-three/fiber" {
       uColor?: THREE.Color;
       uPulseSpeed?: number;
       uPulseDensity?: number;
+      uBrightness?: number;
+      uEmberColorA?: THREE.Color;
+      uEmberColorADark?: THREE.Color;
+      uEmberColorB?: THREE.Color;
+      uEmberColorBDark?: THREE.Color;
+      uBgColor?: THREE.Color;
     };
   }
 }
@@ -311,12 +203,21 @@ export const Courseway = ({
   position = [0, 0, 0] as [number, number, number],
   scale = 15,
   rotation = [0, 0, 0] as [number, number, number],
+  model,
+  useShader = true,
+  courseRef,
+  uBrightness = 1.5,
+  uBgColor = new THREE.Color(0.04, 0.06, 0.12),
+  uEmberColorA = new THREE.Color(0.3, 0.6, 1.0),
+  uEmberColorADark = new THREE.Color(0.05, 0.2, 0.8),
+  uEmberColorB = new THREE.Color(1.0, 0.55, 0.1),
+  uEmberColorBDark = new THREE.Color(0.6, 0.1, 0.02),
 }) => {
   const incrementCounter = useGame((state) => state.collectWaypoint);
-  const { scene } = useGLTF(courseModel);
+  //@ts-expect-error instead of ignore, so it doesn't hide other potential issues
+  const { scene } = useGLTF(model);
   const groupRef = useRef<THREE.Group>(null!);
   const floorMaterialRef = useRef<any>(null!);
-  // Use a cloned scene so this instance of the course has its own unique arrows
 
   const { visualMeshes, physicsMeshes, arrowMeshes, localScene } =
     useMemo(() => {
@@ -337,7 +238,10 @@ export const Courseway = ({
           child.isMesh &&
           (child.name == "CourseFloor" ||
             child.name == "CourseFloor2" ||
-            child.name == "CourseFloor3")
+            child.name == "CourseFloor3" ||
+            child.name == "CourseFloor4" ||
+            child.name == "CourseFloor5" ||
+            child.name == "CourseFloor6")
         ) {
           //const mat = new CourseFloorMaterial();
           // child.material = mat;
@@ -397,7 +301,7 @@ export const Courseway = ({
       // 3. Distance Check
       const dist = _arrowVec.distanceTo(_shipVec);
 
-      if (dist < 4 * scale) {
+      if (dist < 0.3 * scale) {
         //console.log("waypoint distance: ", dist);
         //console.log("waypoint name:", arrow.name);
         collectWaypoint(arrow);
@@ -434,12 +338,35 @@ export const Courseway = ({
       ))} */}
 
       {visualMeshes.map((mesh, i) => (
-        <mesh key={`vis-${i}`} geometry={mesh.geometry}>
-          <courseFloorMaterial
-            ref={floorMaterialRef}
-            uTime={0}
-            side={THREE.DoubleSide}
-          />
+        <mesh
+          key={`vis-${i}`}
+          geometry={mesh.geometry}
+          name={mesh.name}
+          ref={
+            i === 0
+              ? (el) => {
+                  if (courseRef && el) {
+                    courseRef.current = el;
+                  }
+                }
+              : undefined
+          }
+        >
+          {useShader ? (
+            <courseFloorMaterial
+              ref={floorMaterialRef}
+              uTime={0}
+              side={THREE.DoubleSide}
+              uBgColor={uBgColor}
+              uEmberColorA={uEmberColorA}
+              uEmberColorADark={uEmberColorADark}
+              uEmberColorB={uEmberColorB}
+              uEmberColorBDark={uEmberColorBDark}
+              uBrightness={uBrightness}
+            />
+          ) : (
+            <primitive object={mesh.material} attach="material" />
+          )}
         </mesh>
       ))}
       {/* ARROWS: Visual only */}

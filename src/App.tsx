@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import Experience from "./Experience";
 import Interface from "./Interface"; // Your 2D HUD
 import { Stats } from "@react-three/drei";
+import IntroScreen from "./IntroScreen";
 export default function App() {
   return (
     // Define your key map once at the top level
@@ -28,7 +29,7 @@ export default function App() {
             <Experience />
           </Suspense>
         </Canvas>
-
+        <IntroScreen />
         {/* //THE 2D UI (Overlayed on top)
         <Interface /> */}
       </div>

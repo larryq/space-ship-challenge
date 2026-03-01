@@ -3,6 +3,7 @@ import { useGame } from "./store/GameStore";
 
 export function Stargate({ position }: { position: [number, number, number] }) {
   const enterGate = useGame((state) => state.enterGate);
+  const setWarpTextureIndex = useGame((state) => state.setWarpTextureIndex);
 
   return (
     <group position={position}>

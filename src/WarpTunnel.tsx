@@ -4,13 +4,20 @@ import { useRef } from "react";
 import { Mesh, DoubleSide, RepeatWrapping } from "three";
 import { useTexture } from "@react-three/drei";
 import { useGame } from "./store/GameStore";
-import warpURL from "./assets/warp_stars.jpg";
+import warpURL from "./assets/warp_stars7.jpg";
 
-export function WarpTunnel({ shipBodyRef: shipRef }) {
+export function WarpTunnel({
+  shipBodyRef: shipRef,
+  textureURL = warpURL,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  shipBodyRef: any;
+  textureURL?: string;
+}) {
   // Pass the ship ref here
   const tunnel = useRef<Mesh>(null!);
   const phase = useGame((state) => state.phase);
-  const texture = useTexture(warpURL);
+  const texture = useTexture(textureURL);
 
   texture.wrapS = texture.wrapT = RepeatWrapping;
   // Repeat the texture many times along the length to make stars smaller/denser

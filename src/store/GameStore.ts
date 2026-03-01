@@ -11,6 +11,9 @@ interface GameState {
   toggleTrackMode: () => void;
   // Separate setter if you need to force a specific mode
   setCameraMode: (mode: "thirdPerson" | "firstPerson") => void;
+  showIntro: boolean;
+  setShowIntro: (show: boolean) => void;
+  warpTextureIndex: number;
 
   // Actions
   start: () => void;
@@ -18,6 +21,7 @@ interface GameState {
   warpComplete: () => void;
   reset: () => void;
   collectWaypoint: () => void;
+  setWarpTextureIndex: (index: number) => void;
 }
 
 export const useGame = create<GameState>((set, get) => ({
@@ -27,6 +31,7 @@ export const useGame = create<GameState>((set, get) => ({
   currentSector: 1,
   waypointsCollected: 0,
   cameraMode: "thirdPerson",
+  warpTextureIndex: 0,
   isRacing: false,
   toggleTrackMode: () =>
     set((state) => {
@@ -39,6 +44,8 @@ export const useGame = create<GameState>((set, get) => ({
     }),
 
   setCameraMode: (mode) => set({ cameraMode: mode }),
+
+  setWarpTextureIndex: (i: number) => set({ warpTextureIndex: i }),
 
   start: () => set({ phase: "playing", score: 0, health: 100 }),
 
@@ -71,4 +78,7 @@ export const useGame = create<GameState>((set, get) => ({
   warpComplete: () => set({ phase: "playing" }),
 
   reset: () => set({ phase: "idle", currentSector: 1 }),
+
+  showIntro: true,
+  setShowIntro: (show: boolean) => set({ showIntro: show }),
 }));

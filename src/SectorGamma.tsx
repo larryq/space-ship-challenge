@@ -57,6 +57,7 @@ export default function SectorGamma({
           model={a.model}
           hasRings={a.hasRings}
           ringTexturePath={a.ringTexturePath}
+          spinSpeed={a.spinSpeed}
         />
       ))}
 
@@ -99,6 +100,7 @@ export default function SectorGamma({
         model={asteroidModel2}
         hasRings={true}
         ringTexturePath={ringPath2}
+        spinSpeed={0.05}
       />
 
       {/* Optional: Add a subtle fog to make the distance feel vast */}

@@ -99,6 +99,8 @@ export default function generateAsteroidField(
       r * Math.cos(phi),
     ];
 
+    const spinSpeed = Math.random() * 0.4 - 0.2; // random spin speed between -0.1 and 0.1
+
     if (isTooClose(pos, PROTECTED_POINTS, config.minClearance)) continue;
 
     const modelIndex = pickModel(config.modelWeights);
@@ -112,6 +114,7 @@ export default function generateAsteroidField(
       model: asteroidModels[modelIndex],
       hasRings,
       ringTexturePath: hasRings ? ringTextures[ringIndex] : undefined,
+      spinSpeed,
     });
   }
 

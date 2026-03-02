@@ -61,6 +61,7 @@ export default function SectorAlpha({
           model={a.model}
           hasRings={a.hasRings}
           ringTexturePath={a.ringTexturePath}
+          spinSpeed={a.spinSpeed}
         />
       ))}
 
@@ -111,6 +112,7 @@ export default function SectorAlpha({
         model={asteroidModel2}
         hasRings={true}
         ringTexturePath={ringPath2}
+        spinSpeed={0.02}
       />
 
       {/* Optional: Add a subtle fog to make the distance feel vast */}

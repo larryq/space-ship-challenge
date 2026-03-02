@@ -57,6 +57,7 @@ export default function SectorDelta({
           model={a.model}
           hasRings={a.hasRings}
           ringTexturePath={a.ringTexturePath}
+          spinSpeed={a.spinSpeed}
         />
       ))}
 
@@ -101,6 +102,7 @@ export default function SectorDelta({
         model={asteroidModel2}
         hasRings={true}
         ringTexturePath={ringPath2}
+        spinSpeed={0.11}
       />
 
       {/* Optional: Add a subtle fog to make the distance feel vast */}

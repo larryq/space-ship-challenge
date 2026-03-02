@@ -110,15 +110,18 @@ export default function Asteroid({
   hasRings = false, // New optional prop
   model = asteroidModel,
   ringTexturePath = ringPath,
+  spinSpeed = 0,
 }: {
   position: [number, number, number];
   scale?: number;
   hasRings?: boolean;
   model?: string;
   ringTexturePath?: string;
+  spinSpeed?: number; // Optional spin speed for rotation
 }) {
   const ringMatRef = useRef<any>(null!);
   const ringTexture = useTexture(ringTexturePath);
+  const groupRef = useRef<THREE.Group>(null!);
   const { scene } = useGLTF(model);
   // useMemo ensures these random values stay the same for THIS asteroid
   const { clone, randomRotation, ringSettings } = useMemo(() => {
@@ -152,22 +155,28 @@ export default function Asteroid({
     return { clone: instance, randomRotation: rotation, ringSettings };
   }, [scene, scale]);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (ringMatRef.current) {
       ringMatRef.current.uTime = state.clock.getElapsedTime();
+    }
+
+    if (spinSpeed && groupRef.current) {
+      groupRef.current.rotation.y += spinSpeed * delta;
     }
   });
 
   return (
     <group position={position} rotation={randomRotation}>
-      <RigidBody
-        type="fixed"
-        colliders="cuboid"
-        //position={position}
-        //rotation={randomRotation}
-      >
-        <primitive object={clone} scale={scale} />
-      </RigidBody>
+      <group ref={groupRef}>
+        <RigidBody
+          type="fixed"
+          colliders="cuboid"
+          //position={position}
+          //rotation={randomRotation}
+        >
+          <primitive object={clone} scale={scale} />
+        </RigidBody>
+      </group>
       {hasRings && (
         <mesh rotation={ringSettings.tilt}>
           <planeGeometry args={[scale * 4, scale * 4]} />

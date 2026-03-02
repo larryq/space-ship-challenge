@@ -38,6 +38,7 @@ export default function Planet({
   size = 1,
   rings = false,
   shadowStrength = 0.5,
+  spinSpeed = 0.075,
 }: {
   position: [number, number, number];
   mode: number;
@@ -45,8 +46,10 @@ export default function Planet({
   size: number;
   rings?: boolean;
   shadowStrength?: number;
+  spinSpeed?: number;
 }) {
   const matRef = useRef<any>(null!);
+  const meshRef = useRef<THREE.Mesh>(null!);
 
   const material = useMemo(() => {
     const mat = new THREE.ShaderMaterial({
@@ -61,15 +64,18 @@ export default function Planet({
     return mat;
   }, [fragmentShader, shadowStrength]);
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, delta) => {
     // eslint-disable-next-line react-hooks/immutability
     material.uniforms.uTime.value = clock.getElapsedTime();
     material.uniforms.uShadowStrength.value = shadowStrength;
+    if (spinSpeed && meshRef.current) {
+      meshRef.current.rotation.y += spinSpeed * delta;
+    }
   });
 
   return (
     <RigidBody type="fixed" colliders="cuboid">
-      <mesh position={position}>
+      <mesh position={position} ref={meshRef}>
         <sphereGeometry args={[size, 32, 32]} />
 
         <primitive object={material} attach="material" />

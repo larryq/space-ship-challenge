@@ -86,7 +86,7 @@ export default function SectorDelta({
         position={[-2188, 144, -3600]}
         mode={1}
         size={677}
-        fragmentShader={PlanetShaders.earth}
+        fragmentShader={PlanetShaders.oceanPlanet}
       />
       <Planet
         position={[1888, -444, -3600]}

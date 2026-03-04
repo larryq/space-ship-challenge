@@ -10,6 +10,7 @@ import lavaPlanet from "./shaders/lavaPlanet.frag";
 import bioLuminence from "./shaders/bioLuminence.frag";
 import marsPlanet from "./shaders/marsFragment.frag";
 import icePlanet from "./shaders/icePlanet.frag";
+import oceanPlanet from "./shaders/oceanPlanet.frag";
 import vertexShader from "./shaders/planet.vert";
 import * as THREE from "three";
 
@@ -21,6 +22,7 @@ export const PlanetShaders = {
   bioLuminence,
   marsPlanet,
   icePlanet,
+  oceanPlanet,
 };
 
 // const PlanetMaterial = shaderMaterial(

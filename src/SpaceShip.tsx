@@ -58,7 +58,7 @@ export const SpaceShip = forwardRef(
     const visualMeshRef = useRef<THREE.Group>(null!);
     const exhaustRef = useRef<THREE.Group>(null!);
     const [, getKeys] = useKeyboardControls(); // Requires KeyboardControls wrapper in Experience
-    // useImperativeHandle(ref, () => shipBody.current);
+
     const phase = useGame((state) => state.phase);
 
     const offset = new THREE.Vector3(0, 3, 10);
@@ -191,8 +191,14 @@ export const SpaceShip = forwardRef(
 
     useFrame((state, delta) => {
       if (!shipBody.current || !visualMeshRef.current) return;
-      const moveSpeed = 315 * delta;
 
+      const { forward, backward, left, right, shift, level, spacebar } =
+        getKeys();
+      let moveSpeed = 315 * delta;
+      if (spacebar) {
+        moveSpeed *= 3.5;
+        CAMERA_OFFSETS.firstPerson.set(0, 0.5, -6.5); // Move camera further back for boost
+      } // If spacebar is held, boost speed by 3.5x
       //////////////////////
 
       //visualMeshRef.current.updateWorldMatrix(true, false);
@@ -268,7 +274,6 @@ export const SpaceShip = forwardRef(
       shipUp.applyQuaternion(
         visualMeshRef.current.getWorldQuaternion(new THREE.Quaternion()),
       );
-      //state.camera.up.lerp(shipUp, 0.1); // Smoothly tilt the camera's "Up"
 
       // Look slightly ahead of the ship
 
@@ -358,7 +363,6 @@ export const SpaceShip = forwardRef(
       const pitchSpeed = 0.8 * delta;
       const maxPitch = Math.PI / 2 - 0.4; // 90 degrees minus a little buffer to prevent gimbal lock
 
-      const { forward, backward, left, right, shift, level } = getKeys();
       if (forward) targetPitch += pitchSpeed;
       if (backward) targetPitch -= pitchSpeed;
 

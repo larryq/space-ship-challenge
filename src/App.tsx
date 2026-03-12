@@ -18,6 +18,7 @@ export default function App() {
         { name: "right", keys: ["ArrowRight", "KeyD"] },
         { name: "shift", keys: ["ShiftLeft", "ShiftRight"] },
         { name: "level", keys: ["L"] },
+        { name: "spacebar", keys: ["Space"] },
       ]}
     >
       <div style={{ width: "100vw", height: "100vh", background: "#000" }}>
